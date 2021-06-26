@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color manipulation tool - WebDev ToolKit</title>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin:0;
+        }
+        body {
+            font-family: sans-serif;
+            display: grid;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #color {
+            border: 2px solid royalblue;
+            width: 99.9%;
+            padding: 5px;
+        }
+
+        .colors {
+            width: 100%;
+            padding: 5px;
+            display: grid;
+            grid-template-columns: 33.3% 33.3% 33.3%;
+        }
+        .colors .container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <input onchange="calculateColors(this.value)" onformchange="calculateColors(this.value)" onkeypress="calculateColors(this.value)" oninput="calculateColors(this.value)" onforminput="calculateColors(this.value)" type="text" id="color" placeholder="Enter color (hex)">
+        <div class="colors">
+            <div class="container" id="lighter">25% darker</div>
+            <div class="container" id="rgb">rgb(<span id="r"></span>, <span id="g"></span>, <span id="b"></span>)</div>
+            <div class="container" id="darker">25% darker</div>
+        </div>
+    </div>
+    <script>
+
+        let color = randomColor();
+        document.getElementById('color').value = color;
+        calculateColors(color);
+
+        function calculateColors(color) {
+            document.getElementById("darker").innerText = ColorLuminance(color, -0.25);
+            document.getElementById("darker").style.background = ColorLuminance(color, -0.25);
+            document.getElementById("lighter").innerText = ColorLuminance(color, 0.25);
+            document.getElementById("lighter").style.background = ColorLuminance(color, 0.25);
+            document.getElementById("r").innerText = toRGB(color).r;
+            document.getElementById("g").innerText = toRGB(color).g;
+            document.getElementById("b").innerText = toRGB(color).b;
+            document.getElementById("rgb").style.background = color;
+        }
+
+        function randomColor() {
+            let color = '#';
+            for (let i = 0; i < 6; i++){
+                const random = Math.random();
+                const bit = (random * 16) | 0;
+                color += (bit).toString(16);
+            };
+            return color;
+        };
+
+        function toRGB(hex) {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        // Function to calculate hex stuff 
+        // from https://www.sitepoint.com/javascript-generate-lighter-darker-color
+        function ColorLuminance(hex, lum) {
+
+            // validate hex string
+            hex = String(hex).replace(/[^0-9a-f]/gi, '');
+            if (hex.length < 6) {
+                hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+            }
+            lum = lum || 0;
+
+            // convert to decimal and change luminosity
+            var rgb = "#", c, i;
+            for (i = 0; i < 3; i++) {
+                c = parseInt(hex.substr(i*2,2), 16);
+                c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+                rgb += ("00"+c).substr(c.length);
+            }
+
+            return rgb;
+        }
+    </script>
+</body>
+</html>
